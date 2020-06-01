@@ -1,10 +1,22 @@
 const io = require('socket.io-client');
 const PythonShell =require('python-shell').PythonShell;
+const path = require('path');
 
-var socket = io('http://192.168.0.27:8080'); //send connection request to server
 
-var engine,dis1,dis2;
-var distance = {name:"distancefeed",frontOBJ:"",backOBJ:"",updateflag:'false'}
+//-------!----------<< Enter the static SERVER ADDRESS below !!  >>---------!-------//
+
+
+var socket = io('http://192.168.0.27:8080');
+
+
+//-------!----------<< Enter the static SERVER ADDRESS above !!  >>---------!-------//
+
+
+var engine,dis1,dis2,gps;
+var distance = {name:"distancefeed",frontOBJ:"",backOBJ:"",updateflag:'false'};
+var gpsfeed = {name:"gpsfeed",latitude:"",longitude:""};
+
+  //send connection request to server
 
 socket.on('connect',function () {
     
@@ -13,14 +25,34 @@ socket.on('connect',function () {
     socket.emit('to_Server','Robot connected');
 
     
-    dis1 = new PythonShell('robot/dis1.py',{mode:'text'});
+    dis1 = new PythonShell(__dirname+'/robot/dis1.py',{mode:'text'});
     
     dis1.on('message',(message)=>{ distance['frontOBJ']=message;distance['updateflag']='true';  });
 
-    dis2  = new PythonShell('robot/dis2.py',{mode:'text'});
+    dis2  = new PythonShell(__dirname+'/robot/dis2.py',{mode:'text'});
     dis2.on('message',(message)=>{ distance['backOBJ']=message;distance['updateflag']='true';  });
     
-    
+    gps = new PythonShell(__dirname+'/robot/gps.py',{mode:'text'});
+    gps.on('message',(message)=>
+    {
+       
+        console.log(message,typeof message);
+        var arr = message.split(" , ");
+        var lat = Number(arr[0]);
+        var longi = Number(arr[1]);
+        gpsfeed['latitude']=lat;
+        gpsfeed['longitude']=longi;
+        sendtoUSer(gpsfeed);
+        
+        
+        
+    });
+    gps.on('close',()=>{
+        console.log('terminated');
+        
+        
+        
+    });
 
 
 });
@@ -53,11 +85,6 @@ socket.on('from_Server',(msg)=>                                 //Receive messag
 function sendtoUSer(msg) {  socket.emit('from_Rpi',msg); }     //function to send  data to user
 
 
-//objects to be sent
-
-// var mesge = {name:"messge",message:"hello user",warning:"no warnings yet"};
- //setupdateflag to false if not updated
-// var gps = {name:"gpsfeed",latitude:"311",longitude:"900",updateflag:'true'};
 
 
 //------------------- functions to handle incoming objects and messages -------------------------------------------
@@ -66,7 +93,7 @@ function sendtoUSer(msg) {  socket.emit('from_Rpi',msg); }     //function to sen
 function move(obj) 
 {   
     var engine_arguments = [obj.name,obj.movespeed,obj.direction,obj.time]
-    engine = new PythonShell('robot/engine.py',{mode:'text',args:engine_arguments});
+    engine = new PythonShell(__dirname+'/robot/engine.py',{mode:'text',args:engine_arguments});
     engine.on('message',(message)=>{
     console.log('engine python said : \n',message);  })
        
@@ -74,7 +101,7 @@ function move(obj)
 function turn(obj) 
 {
     var engine_arguments = [obj.name,obj.sensitivity,obj.direction,obj.time]
-    engine = new PythonShell('robot/engine.py',{mode:'text',args:engine_arguments});
+    engine = new PythonShell(__dirname+'/robot/engine.py',{mode:'text',args:engine_arguments});
     engine.on('message',(message)=>{
     console.log('engine python said : \n',message);})
 }

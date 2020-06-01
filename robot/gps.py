@@ -1,6 +1,7 @@
 import serial            
 from time import sleep        
-import sys                  
+import sys     
+import os             
 
 def GPS_Info():
     global NMEA_buff
@@ -13,8 +14,8 @@ def GPS_Info():
     nmea_latitude = NMEA_buff[1]                #extract latitude from GPGGA string
     nmea_longitude = NMEA_buff[3]               #extract longitude from GPGGA string
     
-    print("NMEA Time: ", nmea_time,'\n')
-    print ("NMEA Latitude:", nmea_latitude,"NMEA Longitude:", nmea_longitude,'\n')
+    # print("NMEA Time: ", nmea_time,'\n')
+    # print ("NMEA Latitude:", nmea_latitude,"NMEA Longitude:", nmea_longitude,'\n')
     
     try:
         lat = float(nmea_latitude)                  #convert string into float for calculation
@@ -36,7 +37,9 @@ def convert_to_degrees(raw_value):
     position = "%.4f" %(position)
     return position
     
-
+def getdata():
+    global received_data
+    received_data = (str)(ser.readline())
 
 gpgga_info = "$GPGGA,"
 ser = serial.Serial ("/dev/ttyAMA0")              #Open port with baud rate
@@ -46,11 +49,14 @@ lat_in_degrees = 0
 long_in_degrees = 0
 
 
+
 while True:
     try:
-        received_data = (str)(ser.readline()) 
+        getdata()
     except:
-            sys.exit(0)                   #read NMEA string received
+        sleep(1)
+        getdata()
+                               #read NMEA string received
     GPGGA_data_available = received_data.find(gpgga_info)   #check for NMEA GPGGA string                 
     if (GPGGA_data_available>0):
         GPGGA_buffer = received_data.split("$GPGGA,",1)[1]  #store data coming after "$GPGGA," string 

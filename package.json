@@ -13,6 +13,6 @@
     "ip-validator": "0.0.1",
     "prompt": "^1.0.0",
     "python-shell": "^2.0.1",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.4.0"
   }
 }

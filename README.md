@@ -34,10 +34,13 @@ User can login by using thier creditionals and then access control panel page. U
 
 ## **Project Design**
   ![control panel](./screen-shots/projectarchitecture.png)
+****
 
   ![control panel](./screen-shots/botdesign.png)
+****
 
   ![control panel](./screen-shots/connection.png)
+****
 
   ![control panel](./screen-shots/bot.png)
 

@@ -9,7 +9,7 @@
   "author": "shivam",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^4.18.2",
     "ip-validator": "0.0.1",
     "prompt": "^1.0.0",
     "python-shell": "^2.0.1",
